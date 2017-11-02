@@ -18,32 +18,35 @@ public class PerlinTest : MonoBehaviour
 
     [Space]
 
-    public int depth = 20;  //height from above
+    public int depth;  //height from above
 
-    public int width = 256;     //make a int named width and set it to a default of 256
-    public int height = 256;    //make int named height and set it to a default of 256 [Length of terrain]
+    public int width;     //make a int named width and set it to a default of 256
+    public int height;    //make int named height and set it to a default of 256 [Length of terrain]
 
-    public float Scale = 20;
+    public float Scale;
 
-    public float offsetX = 100;
-    public float offsetY = 100;
+    public float offsetX;
+    public float offsetY;
 
+    public float[,] map; // Storing the heightmap data
 
     public void Start()
     {
         offsetX = Random.Range(0, 99999);
         offsetY = Random.Range(0, 99999);
 
-        Terrain terrain = GetComponent<Terrain>();      //for Terrain Data
-        terrain.terrainData = GenerateTerrain(terrain.terrainData);
+        //Terrain terrain = GetComponent<Terrain>();      //for Terrain Data
+        //terrain.terrainData = GenerateTerrain(terrain.terrainData);
+        map = new float[width, height];
 
+        map = GenerateHeights();
     }
 
 
     void Update()
     {
-        Terrain terrain = GetComponent<Terrain>();      //for Terrain Data
-        terrain.terrainData = GenerateTerrain(terrain.terrainData);
+        //Terrain terrain = GetComponent<Terrain>();      //for Terrain Data
+        //terrain.terrainData = GenerateTerrain(terrain.terrainData);
 
         if (Animate == true)
         {

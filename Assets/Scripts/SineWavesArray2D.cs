@@ -1,48 +1,35 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.IO;
 
-public class ProcedureArray2D : MonoBehaviour
+public class SineWavesArray2D : MonoBehaviour
 {
     /// <summary>
     /// 
     /// </summary>
 
     public int actualTerrainSize;
-    public int depth; // Maximum height of the terrain
     public int smoothMapSize;
     public int smoothFactor;
 
-    public float h1Amplitude; // The amplitude for horizontal wave with frequency 1
-    public float h2Amplitude; // The amplitude for horizontal wave with frequency 2
-    public float h4Amplitude; // The amplitude for horizontal wave with frequency 4
-    public float h8Amplitude; // The amplitude for horizontal wave with frequency 8
-    public float h16Amplitude; // The amplitude for horizontal wave with frequency 16
-    public float h32Amplitude; // The amplitude for horizontal wave with frequency 32
-    public float v1Amplitude; // The amplitude for vertical wave with frequency 1
-    public float v2Amplitude; // The amplitude for vertical wave with frequency 2
-    public float v4Amplitude; // The amplitude for vertical wave with frequency 4
-    public float v8Amplitude; // The amplitude for vertical wave with frequency 8
-    public float v16Amplitude; // The amplitude for vertical wave with frequency 16
-    public float v32Amplitude; // The amplitude for vertical wave with frequency 32
+    public float s1Amplitude; // The amplitude for wave with frequency 1
+    public float s2Amplitude; // The amplitude for wave with frequency 2
+    public float s4Amplitude; // The amplitude for wave with frequency 4
+    public float s8Amplitude; // The amplitude for wave with frequency 8
+    public float s16Amplitude; // The amplitude for wave with frequency 16
+    public float s32Amplitude; // The amplitude for wave with frequency 32
 
-    public float[] hFrequencies; // The array for horizontal frequencies
-    public float[] hAmplitudes; // The array for horizontal amplitudes
-    public float[] vFrequencies; // The array for vertical frequencies
-    public float[] vAmplitudes; // The array for vertical amplitudes
+    public float[] frequencies; // The array for frequencies
+    public float[] amplitudes; // The array for amplitudes
     public float[,] map; // The output map
     public float[,] smoothMap; // The smoothed map
-    public Terrain terrain; // The terrain to be modified
     public float heightScale; // Maximum height of the combined wave, the values in height map need to be divided by this number
 
     // Use this for initialization
     void Start()
     {
-        hFrequencies = new float[] { 1, 2, 4, 8, 16, 32 };
-        vFrequencies = new float[] { 1, 2, 4, 8, 16, 32 };
-        hAmplitudes = new float[] { h1Amplitude, h2Amplitude, h4Amplitude, h8Amplitude, h16Amplitude, h32Amplitude };
-        vAmplitudes = new float[] { v1Amplitude, v2Amplitude, v4Amplitude, v8Amplitude, v16Amplitude, v32Amplitude };
+        frequencies = new float[] { 1, 2, 4, 8, 16, 32 };
+        amplitudes = new float[] { s1Amplitude, s2Amplitude, s4Amplitude, s8Amplitude, s16Amplitude, s32Amplitude };
 
         smoothMapSize = actualTerrainSize * smoothFactor - smoothFactor + 1;
 
@@ -84,20 +71,6 @@ public class ProcedureArray2D : MonoBehaviour
     void Update()
     {
         //terrain.terrainData = GenerateTerrain(terrain.terrainData);
-    }
-
-    public TerrainData GenerateTerrain(TerrainData terrainData)
-    {
-        terrainData.heightmapResolution = actualTerrainSize + 1;
-
-        terrainData.size = new Vector3(actualTerrainSize, depth, actualTerrainSize);
-        terrainData.SetHeights(0, 0, map);
-
-        //terrainData.heightmapResolution = smoothMapSize + 1;
-
-        //terrainData.size = new Vector3(smoothMapSize, depth, smoothMapSize);
-        //terrainData.SetHeights(0, 0, smoothMap);
-        return terrainData;
     }
 
     public void SmoothMap() // Lerp values so the map become smoother
@@ -162,30 +135,25 @@ public class ProcedureArray2D : MonoBehaviour
 
     public void GenerateMap()
     {
-        for (int i = 0; i < actualTerrainSize; i++) // Fill in vertical arrays
+        for (int f = 0; f < frequencies.Length; f++)
         {
-            float[] newCombinedWave = CombinedWave(vFrequencies, vAmplitudes);
+            float phaseShift = BetterRandom.betterRandom(0, Mathf.RoundToInt(20000000 * Mathf.PI)) / 10000000f;
+            int centerI = BetterRandom.betterRandom(0, actualTerrainSize - 1);
+            int centerJ = BetterRandom.betterRandom(0, actualTerrainSize - 1);
 
-            for (int k = 0; k < actualTerrainSize; k++)
+            for (int i = 0; i < actualTerrainSize; i++)
             {
-                map[i, k] += newCombinedWave[k];
+                for (int j = 0; j < actualTerrainSize; j++)
+                {
+                    map[i,j] += Mathf.Sin(Mathf.Pow(Mathf.Pow(2 * Mathf.PI * frequencies[f] * (i - centerI) / actualTerrainSize + phaseShift, 2) +
+                                                    Mathf.Pow(2 * Mathf.PI * frequencies[f] * (j - centerJ) / actualTerrainSize + phaseShift, 2), 0.5f)) * amplitudes[f];
+                }
             }
         }
 
-        for (int i = 0; i < actualTerrainSize; i++) // Fill in horizontal arrays
+        for (int i = 0; i < frequencies.Length; i++) // Calculating the scale of the height map
         {
-            float[] newCombinedWave = CombinedWave(hFrequencies, hAmplitudes);
-
-            for (int k = 0; k < actualTerrainSize; k++)
-            {
-                map[k, i] += newCombinedWave[k];
-            }
-        }
-
-        for (int i = 0; i < hFrequencies.Length; i++) // Calculating the scale of the height map
-        {
-            heightScale += hAmplitudes[i];
-            heightScale += vAmplitudes[i];
+            heightScale += amplitudes[i];
         }
 
         for (int i = 0; i < actualTerrainSize; i++) // Normalize height map data to a scale of 1
@@ -200,7 +168,7 @@ public class ProcedureArray2D : MonoBehaviour
         {
             for (int k = 0; k < actualTerrainSize; k++)
             {
-                map[k, i] = Mathf.Abs(map[k,i]);
+                map[k, i] = Mathf.Abs(map[k, i]);
             }
         }
     }
