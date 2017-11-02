@@ -18,9 +18,16 @@ public class SineWavesArray2D : MonoBehaviour
     public float s8Amplitude; // The amplitude for wave with frequency 8
     public float s16Amplitude; // The amplitude for wave with frequency 16
     public float s32Amplitude; // The amplitude for wave with frequency 32
+    public float s1Count; // The count for wave with frequency 1
+    public float s2Count; // The count for wave with frequency 2
+    public float s4Count; // The count for wave with frequency 4
+    public float s8Count; // The count for wave with frequency 8
+    public float s16Count; // The count for wave with frequency 16
+    public float s32Count; // The count for wave with frequency 32
 
     public float[] frequencies; // The array for frequencies
     public float[] amplitudes; // The array for amplitudes
+    public float[] counts; // The counts for how many 2D sine waves for each frequency
     public float[,] map; // The output map
     public float[,] smoothMap; // The smoothed map
     public float heightScale; // Maximum height of the combined wave, the values in height map need to be divided by this number
@@ -30,6 +37,7 @@ public class SineWavesArray2D : MonoBehaviour
     {
         frequencies = new float[] { 1, 2, 4, 8, 16, 32 };
         amplitudes = new float[] { s1Amplitude, s2Amplitude, s4Amplitude, s8Amplitude, s16Amplitude, s32Amplitude };
+        counts = new float[] { s1Count, s2Count, s4Count, s8Count, s16Count, s32Count };
 
         smoothMapSize = actualTerrainSize * smoothFactor - smoothFactor + 1;
 
@@ -137,23 +145,26 @@ public class SineWavesArray2D : MonoBehaviour
     {
         for (int f = 0; f < frequencies.Length; f++)
         {
-            float phaseShift = BetterRandom.betterRandom(0, Mathf.RoundToInt(20000000 * Mathf.PI)) / 10000000f;
-            int centerI = BetterRandom.betterRandom(0, actualTerrainSize - 1);
-            int centerJ = BetterRandom.betterRandom(0, actualTerrainSize - 1);
-
-            for (int i = 0; i < actualTerrainSize; i++)
+            for (int c = 0; c < counts[f]; c++)
             {
-                for (int j = 0; j < actualTerrainSize; j++)
+                float phaseShift = BetterRandom.betterRandom(0, Mathf.RoundToInt(20000000 * Mathf.PI)) / 10000000f;
+                int centerI = BetterRandom.betterRandom(0, actualTerrainSize - 1);
+                int centerJ = BetterRandom.betterRandom(0, actualTerrainSize - 1);
+
+                for (int i = 0; i < actualTerrainSize; i++)
                 {
-                    map[i,j] += Mathf.Sin(Mathf.Pow(Mathf.Pow(2 * Mathf.PI * frequencies[f] * (i - centerI) / actualTerrainSize + phaseShift, 2) +
-                                                    Mathf.Pow(2 * Mathf.PI * frequencies[f] * (j - centerJ) / actualTerrainSize + phaseShift, 2), 0.5f)) * amplitudes[f];
+                    for (int j = 0; j < actualTerrainSize; j++)
+                    {
+                        map[i, j] += (Mathf.Sin(Mathf.Pow(Mathf.Pow(2 * Mathf.PI * frequencies[f] * (i - centerI) / actualTerrainSize + phaseShift, 2) +
+                                                          Mathf.Pow(2 * Mathf.PI * frequencies[f] * (j - centerJ) / actualTerrainSize + phaseShift, 2), 0.5f)) * amplitudes[f]) / (float)counts[f];
+                    }
                 }
             }
         }
 
         for (int i = 0; i < frequencies.Length; i++) // Calculating the scale of the height map
         {
-            heightScale += amplitudes[i];
+            heightScale += amplitudes[i];// * counts[i];
         }
 
         for (int i = 0; i < actualTerrainSize; i++) // Normalize height map data to a scale of 1

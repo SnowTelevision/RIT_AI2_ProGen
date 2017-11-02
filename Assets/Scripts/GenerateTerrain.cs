@@ -5,6 +5,7 @@ using UnityEngine;
 public class GenerateTerrain : MonoBehaviour
 {
     public float waveWeight; // How much the wave height map will change the base perlin map
+    public float lineWeight;
     public int terrainSize;
     public int terrainDepth;
     public int depth;
@@ -52,7 +53,7 @@ public class GenerateTerrain : MonoBehaviour
         {
             for (int j = 0; j < terrainSize; j++)
             {
-                combinedMap[i, j] = waveMap.map[i, j] * waveWeight / 2f + arrayMap.map[i, j] * waveWeight / 2f + perlinMap.map[i, j] * (1 - waveWeight);
+                combinedMap[i, j] = waveMap.map[i, j] * waveWeight * (1 - lineWeight) + arrayMap.map[i, j] * waveWeight * lineWeight + perlinMap.map[i, j] * (1 - waveWeight);
             }
         }
 
