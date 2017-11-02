@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class SineWavesArray2D : MonoBehaviour
+public class SineWavesDomainWarping : MonoBehaviour
 {
     /// <summary>
     /// 
@@ -24,10 +24,17 @@ public class SineWavesArray2D : MonoBehaviour
     public int s8Count; // The count for wave with frequency 8
     public int s16Count; // The count for wave with frequency 16
     public int s32Count; // The count for wave with frequency 32
+    public int s1Warp; // The warps for wave with frequency 1
+    public int s2Warp; // The warps for wave with frequency 2
+    public int s4Warp; // The warps for wave with frequency 4
+    public int s8Warp; // The warps for wave with frequency 8
+    public int s16Warp; // The warps for wave with frequency 16
+    public int s32Warp; // The warps for wave with frequency 32
 
     public float[] frequencies; // The array for frequencies
     public float[] amplitudes; // The array for amplitudes
     public int[] counts; // The counts for how many 2D sine waves for each frequency
+    public int[] warps; // The counts for how many time each 2D sine wave will warp for each frequency
     public float[,] map; // The output map
     public float[,] smoothMap; // The smoothed map
     public float heightScale; // Maximum height of the combined wave, the values in height map need to be divided by this number
@@ -38,6 +45,7 @@ public class SineWavesArray2D : MonoBehaviour
         frequencies = new float[] { 1, 2, 4, 8, 16, 32 };
         amplitudes = new float[] { s1Amplitude, s2Amplitude, s4Amplitude, s8Amplitude, s16Amplitude, s32Amplitude };
         counts = new int[] { s1Count, s2Count, s4Count, s8Count, s16Count, s32Count };
+        warps = new int[] { s1Warp, s2Warp, s4Warp, s8Warp, s16Warp, s32Warp };
 
         smoothMapSize = actualTerrainSize * smoothFactor - smoothFactor + 1;
 
@@ -157,5 +165,14 @@ public class SineWavesArray2D : MonoBehaviour
                 map[k, i] = Mathf.Abs(map[k, i]);
             }
         }
+    }
+
+    public float WarpingFunction(float x, int warpCount)
+    {
+        float y;
+
+        y = 0;
+
+        return y;
     }
 }
