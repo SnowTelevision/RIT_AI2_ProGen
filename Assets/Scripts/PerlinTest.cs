@@ -30,23 +30,32 @@ public class PerlinTest : MonoBehaviour
 
     public float[,] map; // Storing the heightmap data
 
+    public float fbmWeight; // How much the fbm going to influence the perlin
+    public int octaves;
+    public float gain;
+    public float lacunarity;
+
+    public Vector2 randomVector2D;
+
     public void Start()
     {
         offsetX = Random.Range(0, 99999);
         offsetY = Random.Range(0, 99999);
 
-        //Terrain terrain = GetComponent<Terrain>();      //for Terrain Data
-        //terrain.terrainData = GenerateTerrain(terrain.terrainData);
+        Terrain terrain = GetComponent<Terrain>();      //for Terrain Data
+        terrain.terrainData = GenerateTerrain(terrain.terrainData);
         map = new float[width, height];
 
         map = GenerateHeights();
+
+        randomVector2D = new Vector2(BetterRandom.betterRandom(-100000, 100000) / 1000f, BetterRandom.betterRandom(-100000, 100000) / 1000f) * (BetterRandom.betterRandom(0, 100000000) / 1000f);
     }
 
 
     void Update()
     {
-        //Terrain terrain = GetComponent<Terrain>();      //for Terrain Data
-        //terrain.terrainData = GenerateTerrain(terrain.terrainData);
+        Terrain terrain = GetComponent<Terrain>();      //for Terrain Data
+        terrain.terrainData = GenerateTerrain(terrain.terrainData);
 
         if (Animate == true)
         {
@@ -77,19 +86,6 @@ public class PerlinTest : MonoBehaviour
             }
         }
 
-        //string raw = "";
-        //for (int y = 0; y < width; y++)
-        //{
-
-        //    for (int x = 0; x < width; x++)
-        //    {
-        //        raw += heights[x, y].ToString("F2") + " ";
-        //    }
-        //    raw += '\n';
-        //}
-
-        //File.WriteAllText("C:\\UnityProjects\\AI2\\TestOutput\\perlin.txt", raw);
-
         return heights;
     }
 
@@ -104,7 +100,8 @@ public class PerlinTest : MonoBehaviour
             yCord += offsetY;
         }
 
+        Vector2 coord = new Vector2(xCord, yCord);
 
-        return Mathf.PerlinNoise(xCord, yCord);
+        return FBM2D.improvedFBM(coord, octaves, gain, lacunarity, randomVector2D) * fbmWeight + Mathf.PerlinNoise(xCord, yCord) * (1 - fbmWeight);
     }
 }
