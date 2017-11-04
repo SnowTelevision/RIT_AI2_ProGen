@@ -19,22 +19,22 @@ public class FBM2D : MonoBehaviour
 
     }
 
-    public static float improvedFBM(Vector2 coord, int octaves, float gain, float lacunarity, Vector2 randomVector2D)
+    public static float improvedFBM(Vector2 coord, int octaves, float gain, float lacunarity, Vector2 randomVector2D, float randomSinMulti)
     {
         float value = 0;
         float amplitude = 0.5f;
 
-        for (int i = 0; i < octaves; i++)
+        for (int i = 1; i < octaves + 1; i++)
         {
-            value += amplitude * improvedFadePerlin(coord, randomVector2D.x, randomVector2D.y);
+            value += amplitude * improvedFadePerlin(coord, randomVector2D.x, randomVector2D.y, randomSinMulti);
             coord *= lacunarity;
-            amplitude *= gain;
+            amplitude *= gain * (0.5f / gain);
         }
 
-        return value;
+        return value * gain;
     }
 
-    public static float improvedFadePerlin(Vector2 coord, float v2x, float v2y)
+    public static float improvedFadePerlin(Vector2 coord, float v2x, float v2y, float randomSinMulti)
     {
         Vector2 unitCoord = Floor2D(coord); // Integer part of the coordinate
         Vector2 fractCoord = Fract2D(coord); // Fractional part of the coordinate
@@ -46,10 +46,10 @@ public class FBM2D : MonoBehaviour
         ///
 
         // Random height of four corners of the unit square (the integer part of the coordinate is the top left corner)
-        float tl = randomDot(unitCoord, v2x, v2y);
-        float tr = randomDot(unitCoord + Vector2.right, v2x, v2y);
-        float bl = randomDot(unitCoord - Vector2.down, v2x, v2y);
-        float br = randomDot(unitCoord + Vector2.right - Vector2.down, v2x, v2y);
+        float tl = randomDot(unitCoord, v2x, v2y, randomSinMulti);
+        float tr = randomDot(unitCoord + Vector2.right, v2x, v2y, randomSinMulti);
+        float bl = randomDot(unitCoord - Vector2.down, v2x, v2y, randomSinMulti);
+        float br = randomDot(unitCoord + Vector2.right - Vector2.down, v2x, v2y, randomSinMulti);
 
         Vector2 six = Vector2.one * 6;
         Vector2 fifteen = Vector2.one * 15;
@@ -61,11 +61,11 @@ public class FBM2D : MonoBehaviour
         return Mathf.Lerp(tl, tr, improvedFade.x) + (bl - tl) * improvedFade.y * (1 - improvedFade.x) + (br - tr) * improvedFade.x * improvedFade.y;
     }
 
-    public static float randomDot(Vector2 coord, float v2x, float v2y) // Return the fractional part of the sine of the dot product of the 2D coordinate vector and a random 2D vector
+    public static float randomDot(Vector2 coord, float v2x, float v2y, float randomSinMulti) // Return the fractional part of the sine of the dot product of the 2D coordinate vector and a random 2D vector
     {
         Vector2 randV2 = new Vector2(v2x, v2y);
 
-        return Fract(Mathf.Sin(Vector2.Dot(coord, randV2)));
+        return Fract(Mathf.Sin(Vector2.Dot(coord, randV2)) * randomSinMulti);
     }
 
     //public Vector2 Lerp2D(Vector2 a2D, Vector2 b2D, float t) // Linear lerp a 2D vector to another 2D vector
