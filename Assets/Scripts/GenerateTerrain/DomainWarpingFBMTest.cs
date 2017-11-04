@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Threading;
+using System.Threading.Tasks;
 
 public class DomainWarpingFBMTest : MonoBehaviour
 {
@@ -30,6 +32,7 @@ public class DomainWarpingFBMTest : MonoBehaviour
     public Vector2[] randomWarpStartCoords; // Random start coorinations for each warping
 
     public float[,] map; // Storing the heightmap data (for the noise combination)
+    //public Vector2 coord;
 
     public void Start()
     {
@@ -53,7 +56,7 @@ public class DomainWarpingFBMTest : MonoBehaviour
         terrain = GetComponent<Terrain>();      //for Terrain Data
         terrain.terrainData.heightmapResolution = width;
         terrain.terrainData.size = new Vector3(width, depth, height);
-        
+
         map = new float[width, height]; // Storing the heightmap data (for the noise combination)
         if (useAlone)
         {
@@ -73,8 +76,8 @@ public class DomainWarpingFBMTest : MonoBehaviour
         {
             if (updateRealtime)
             {
-                //GenerateTerrain(terrain.terrainData);
-                GenerateHeights();
+                GenerateTerrain(terrain.terrainData);
+                //GenerateHeights();
 
                 if (animate == true)
                 {
@@ -93,13 +96,22 @@ public class DomainWarpingFBMTest : MonoBehaviour
 
     public float[,] GenerateHeights()
     {
-        for (int x = 0; x < width; x++)
+        Parallel.For(0, width, x =>
         {
-            for (int y = 0; y < height; y++)
+            Parallel.For(0, height, y =>
             {
                 map[x, y] = CalculateHeight(x, y);      //generate some perlin noise value
-            }
-        }
+                //Interlocked.Exchange(ref map[x, y], CalculateHeight(x, y));
+            });
+        });
+
+        //for (int x = 0; x < width; x++)
+        //{
+        //    for (int y = 0; y < height; y++)
+        //    {
+        //        map[x, y] = CalculateHeight(x, y);      //generate some perlin noise value
+        //    }
+        //}
 
         return map;
     }
@@ -115,7 +127,13 @@ public class DomainWarpingFBMTest : MonoBehaviour
             yCord += offsetY;
         }
 
-        Vector2 coord = new Vector2(xCord, yCord);
+        //Vector2 coord = Vector2.zero;
+        //Interlocked.Exchange(ref coord.x, xCord);
+        //Interlocked.Exchange(ref coord.y, yCord);
+
+        Vector2 coord;
+        coord.x = xCord;
+        coord.y = yCord;
 
         return DomainWarpingFBM.improvedFBMwarping(warpings, factor, coord, octaves, gain, lacunarity, randomVector2D, randomSinMulti, randomWarpStartCoords);
     }

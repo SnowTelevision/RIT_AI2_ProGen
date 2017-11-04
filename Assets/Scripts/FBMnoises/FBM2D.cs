@@ -51,9 +51,6 @@ public class FBM2D : MonoBehaviour
         float bl = randomDot(unitCoord - Vector2.down, v2x, v2y, randomSinMulti);
         float br = randomDot(unitCoord + Vector2.right - Vector2.down, v2x, v2y, randomSinMulti);
 
-        Vector2 six = Vector2.one * 6;
-        Vector2 fifteen = Vector2.one * 15;
-        Vector2 ten = Vector2.one * 10;
         Vector2 improvedFade = 6 * Vector2.Scale(fractCoord, Vector2.Scale(fractCoord, Vector2.Scale(fractCoord, Vector2.Scale(fractCoord, fractCoord)))) -
                                15 * Vector2.Scale(fractCoord, Vector2.Scale(fractCoord, Vector2.Scale(fractCoord, fractCoord))) +
                                10 * Vector2.Scale(fractCoord, Vector2.Scale(fractCoord, fractCoord)); // 6 * t^5 - 15 * t^4 + 10 * t^3
@@ -63,7 +60,9 @@ public class FBM2D : MonoBehaviour
 
     public static float randomDot(Vector2 coord, float v2x, float v2y, float randomSinMulti) // Return the fractional part of the sine of the dot product of the 2D coordinate vector and a random 2D vector
     {
-        Vector2 randV2 = new Vector2(v2x, v2y);
+        Vector2 randV2;
+        randV2.x = v2x;
+        randV2.y = v2y;
 
         return Fract(Mathf.Sin(Vector2.Dot(coord, randV2)) * randomSinMulti);
     }
