@@ -55,6 +55,7 @@ public class DomainWarpingFBMTest : MonoBehaviour
 
         terrain = GetComponent<Terrain>();      //for Terrain Data
         terrain.terrainData.heightmapResolution = width;
+        terrain.terrainData.alphamapResolution = width;
         terrain.terrainData.size = new Vector3(width, depth, height);
 
         map = new float[width, height]; // Storing the heightmap data (for the noise combination)
