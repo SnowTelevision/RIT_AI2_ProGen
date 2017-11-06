@@ -109,6 +109,9 @@ public class CreateAssets : MonoBehaviour
                     Vector2 lowestDir = Vector2.zero; // The direction of the lowest elevation
                     Vector2 highestDir = Vector2.zero; // The direction of the highest elevation
 
+                    ///
+                    /// z to x, x to y
+                    ///
                     for (int m = -1; m < 2; m++) // Find out which coordinates amongst the area has the lowest or the highest elev
                     {
                         if(zRes + m < 0 || zRes + m >= alphaMapHeight) //Prevent index out of bound
@@ -178,19 +181,51 @@ public class CreateAssets : MonoBehaviour
                                 for (int r = 1; r <= assetSetting.slopeCheckRange; r++)
                                 {
                                     if ((zRes + r * highestDir.x) < 0 ||
-                                        (zRes + r * highestDir.x) >= alphaMapHeight ||
+                                        (zRes + r * highestDir.x) >= alphaMapHeight - 1 ||
                                         (xRes + r * highestDir.y) < 0 ||
-                                        (xRes + r * highestDir.y) >= alphaMapWidth) //Prevent index out of bound
+                                        (xRes + r * highestDir.y) >= alphaMapWidth - 1 ||
+                                        (zRes + r * lowestDir.x) < 0 ||
+                                        (zRes + r * lowestDir.x) >= alphaMapHeight - 1 ||
+                                        (xRes + r * lowestDir.y) < 0 ||
+                                        (xRes + r * lowestDir.y) >= alphaMapWidth - 1) // Prevent index out of bound
                                     {
                                         createAsset = false;
                                         break;
                                     }
+                                    if (assetSetting.isPair) // If asset is pair
+                                    {
+                                        if ((zRes + assetSetting.pairRange * highestDir.x) < 0 ||
+                                            (zRes + assetSetting.pairRange * highestDir.x) >= alphaMapHeight - 1 ||
+                                            (xRes + assetSetting.pairRange * highestDir.y) < 0 ||
+                                            (xRes + assetSetting.pairRange * highestDir.y) >= alphaMapWidth - 1 ||
+                                            (zRes + assetSetting.pairRange * lowestDir.x) < 0 ||
+                                            (zRes + assetSetting.pairRange * lowestDir.x) >= alphaMapHeight - 1 ||
+                                            (xRes + assetSetting.pairRange * lowestDir.y) < 0 ||
+                                            (xRes + assetSetting.pairRange * lowestDir.y) >= alphaMapWidth - 1) // Prevent pair index out of bound
+                                        {
+                                            createAsset = false;
+                                            break;
+                                        }
+                                    }
 
                                     if (heights[(zRes + Mathf.RoundToInt(r * highestDir.x)), (xRes + Mathf.RoundToInt(r * highestDir.y))] <
-                                        heights[(zRes + Mathf.RoundToInt((r - 1) * highestDir.x)), (xRes + (r - 1) * Mathf.RoundToInt(highestDir.y))]) // Check if the slope is going up in the check range
+                                        heights[(zRes + Mathf.RoundToInt((r - 1) * highestDir.x)), (xRes + (r - 1) * Mathf.RoundToInt(highestDir.y))] || 
+                                        heights[(zRes + Mathf.RoundToInt(r * lowestDir.x)), (xRes + Mathf.RoundToInt(r * lowestDir.y))] >
+                                        heights[(zRes + Mathf.RoundToInt((r - 1) * lowestDir.x)), (xRes + (r - 1) * Mathf.RoundToInt(lowestDir.y))]) // Check if the slope is going up in the check range
                                     {
                                         createAsset = false;
                                         break;
+                                    }
+                                    if(assetSetting.isPair)
+                                    {
+                                        if (heights[(zRes + Mathf.RoundToInt(assetSetting.pairRange * highestDir.x)), (xRes + Mathf.RoundToInt(assetSetting.pairRange * highestDir.y))] <
+                                            heights[(zRes + Mathf.RoundToInt(assetSetting.slopeCheckRange * lowestDir.x)), (xRes + Mathf.RoundToInt(assetSetting.slopeCheckRange * lowestDir.y))] ||
+                                            heights[(zRes + Mathf.RoundToInt(assetSetting.pairRange * highestDir.x)), (xRes + Mathf.RoundToInt(assetSetting.pairRange * highestDir.y))] <
+                                            heights[zRes, xRes]) // Check if the pair's height is lower than itself
+                                        {
+                                            createAsset = false;
+                                            break;
+                                        }
                                     }
                                 }
                                 break;
@@ -199,19 +234,52 @@ public class CreateAssets : MonoBehaviour
                                 for (int r = 1; r <= assetSetting.slopeCheckRange; r++)
                                 {
                                     if ((zRes + r * lowestDir.x) < 0 ||
-                                        (zRes + r * lowestDir.x) >= alphaMapHeight ||
+                                        (zRes + r * lowestDir.x) >= alphaMapHeight - 1 ||
                                         (xRes + r * lowestDir.y) < 0 ||
-                                        (xRes + r * lowestDir.y) >= alphaMapWidth) //Prevent index out of bound
+                                        (xRes + r * lowestDir.y) >= alphaMapWidth - 1 ||
+                                        (zRes + r * highestDir.x) < 0 ||
+                                        (zRes + r * highestDir.x) >= alphaMapHeight - 1 ||
+                                        (xRes + r * highestDir.y) < 0 ||
+                                        (xRes + r * highestDir.y) >= alphaMapWidth - 1) //Prevent index out of bound
                                     {
                                         createAsset = false;
                                         break;
                                     }
+                                    if (assetSetting.isPair) // If asset is pair
+                                    {
+                                        //print(xRes + assetSetting.pairRange * lowestDir.y + " " + (alphaMapWidth - 1) + " " + xRes + Mathf.RoundToInt(assetSetting.pairRange * lowestDir.x));
+                                        if ((zRes + assetSetting.pairRange * lowestDir.x) < 0 ||
+                                            (zRes + assetSetting.pairRange * lowestDir.x) >= alphaMapHeight - 1 ||
+                                            (xRes + assetSetting.pairRange * lowestDir.y) < 0 ||
+                                            (xRes + assetSetting.pairRange * lowestDir.y) >= alphaMapWidth - 1 ||
+                                            (zRes + assetSetting.pairRange * highestDir.x) < 0 ||
+                                            (zRes + assetSetting.pairRange * highestDir.x) >= alphaMapHeight - 1 ||
+                                            (xRes + assetSetting.pairRange * highestDir.y) < 0 ||
+                                            (xRes + assetSetting.pairRange * highestDir.y) >= alphaMapWidth - 1) // Prevent pair index out of bound
+                                        {
+                                            createAsset = false;
+                                            break;
+                                        }
+                                    }
 
                                     if (heights[(zRes + Mathf.RoundToInt(r * lowestDir.x)), (xRes + Mathf.RoundToInt(r * lowestDir.y))] >
-                                        heights[(zRes + Mathf.RoundToInt((r - 1) * lowestDir.x)), (xRes + (r - 1) * Mathf.RoundToInt(lowestDir.y))]) // Check if the slope is going down in the check range
+                                        heights[(zRes + Mathf.RoundToInt((r - 1) * lowestDir.x)), (xRes + (r - 1) * Mathf.RoundToInt(lowestDir.y))] ||
+                                        heights[(zRes + Mathf.RoundToInt(r * highestDir.x)), (xRes + Mathf.RoundToInt(r * highestDir.y))] <
+                                        heights[(zRes + Mathf.RoundToInt((r - 1) * highestDir.x)), (xRes + (r - 1) * Mathf.RoundToInt(highestDir.y))]) // Check if the slope is going down in the check range
                                     {
                                         createAsset = false;
                                         break;
+                                    }
+                                    if (assetSetting.isPair)
+                                    {
+                                        if (heights[(zRes + Mathf.RoundToInt(assetSetting.pairRange * lowestDir.x)), (xRes + Mathf.RoundToInt(assetSetting.pairRange * lowestDir.y))] >
+                                            heights[(zRes + Mathf.RoundToInt(assetSetting.slopeCheckRange * highestDir.x)), (xRes + Mathf.RoundToInt(assetSetting.slopeCheckRange * highestDir.y))] ||
+                                            heights[(zRes + Mathf.RoundToInt(assetSetting.pairRange * lowestDir.x)), (xRes + Mathf.RoundToInt(assetSetting.pairRange * lowestDir.y))] >
+                                            heights[zRes, xRes]) // Check if the pair's height is higher than itself
+                                        {
+                                            createAsset = false;
+                                            break;
+                                        }
                                     }
                                 }
                                 break;
@@ -222,25 +290,26 @@ public class CreateAssets : MonoBehaviour
                     {
                         assetSetting.lastPlacingTime = Time.realtimeSinceStartup;
                         GameObject newAsset = Instantiate(assetSetting.asset);
-                        newAsset.transform.position = new Vector3(xRes, heights[zRes, xRes] * terrainData.size.y, zRes);
+                        newAsset.transform.position = new Vector3(xRes, heights[zRes, xRes] * terrainData.size.y + assetSetting.heightOffset, zRes);
                         //print(new Vector3(xRes, heights[zRes, xRes], zRes));
 
                         if (assetSetting.pairAsset)
                         {
+                            GameObject pair = Instantiate(assetSetting.pairAsset);
                             if (assetSetting.slopeType.Equals(SlopeType.upHill))
                             {
-                                newAsset.GetComponent<AssetBehavior>().pair = Instantiate(assetSetting.pairAsset);
-                                newAsset.transform.position = new Vector3(xRes + assetSetting.pairRange * lowestDir.y,
-                                                                          heights[zRes + Mathf.RoundToInt(lowestDir.y), xRes + Mathf.RoundToInt(lowestDir.x)] * terrainData.size.y,
-                                                                          zRes + assetSetting.pairRange * lowestDir.x);
+                                newAsset.GetComponent<AssetBehavior>().pair = pair;
+                                newAsset.GetComponent<AssetBehavior>().pair.transform.position = new Vector3(xRes + assetSetting.pairRange * highestDir.y,
+                                                                                                             heights[zRes + Mathf.RoundToInt(assetSetting.pairRange * highestDir.x), xRes + Mathf.RoundToInt(assetSetting.pairRange * highestDir.y)] * terrainData.size.y + assetSetting.heightOffset,
+                                                                                                             zRes + assetSetting.pairRange * highestDir.x);
                                 newAsset.GetComponent<AssetBehavior>().pair.GetComponent<AssetBehavior>().pair = newAsset;
                             }
                             else if (assetSetting.slopeType.Equals(SlopeType.downHill))
                             {
-                                newAsset.GetComponent<AssetBehavior>().pair = Instantiate(assetSetting.pairAsset);
-                                newAsset.transform.position = new Vector3(xRes + assetSetting.pairRange * highestDir.y,
-                                                                          heights[zRes + Mathf.RoundToInt(highestDir.y), xRes + Mathf.RoundToInt(highestDir.x)] * terrainData.size.y,
-                                                                          zRes + assetSetting.pairRange * highestDir.x);
+                                newAsset.GetComponent<AssetBehavior>().pair = pair;
+                                newAsset.GetComponent<AssetBehavior>().pair.transform.position = new Vector3(xRes + assetSetting.pairRange * lowestDir.y,
+                                                                                                             heights[zRes + Mathf.RoundToInt(assetSetting.pairRange * lowestDir.x), xRes + Mathf.RoundToInt(assetSetting.pairRange * lowestDir.y)] * terrainData.size.y + assetSetting.heightOffset,
+                                                                                                             zRes + assetSetting.pairRange * lowestDir.x);
                                 newAsset.GetComponent<AssetBehavior>().pair.GetComponent<AssetBehavior>().pair = newAsset;
                             }
                         }

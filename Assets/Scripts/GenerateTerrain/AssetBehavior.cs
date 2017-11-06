@@ -12,13 +12,18 @@ public class AssetBehavior : MonoBehaviour
     void Start()
     {
         terrain = FindObjectOfType<DomainWarpingFBMTest>();
-        lastingTime = terrain.width / terrain.animateSpeed;
+        lastingTime = terrain.width * terrain.animateSpeed;
         Destroy(gameObject, lastingTime);
     }
 
     // Update is called once per frame
     void Update()
     {
+        if(pair != null)
+        {
+            transform.LookAt(pair.transform);
+        }
+
         if(terrain.updateRealtime)
         {
             if(terrain.animate)
