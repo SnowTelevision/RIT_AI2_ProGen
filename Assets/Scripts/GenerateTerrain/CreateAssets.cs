@@ -75,9 +75,25 @@ public class CreateAssets : MonoBehaviour
 
                     if (assetSetting.elevationRange)
                     {
-                        if (elevation > assetSetting.maxElevation || elevation < assetSetting.minElevation)
+                        for (int m = -assetSetting.elevationCheckRange; m < assetSetting.elevationCheckRange + 1; m++) // Find out which coordinates amongst the area has the lowest or the highest elev
                         {
-                            createAsset = false;
+                            if (zRes + m < 0 || zRes + m >= alphaMapHeight) //Prevent index out of bound
+                            {
+                                continue;
+                            }
+
+                            for (int n = -assetSetting.elevationCheckRange; n < assetSetting.elevationCheckRange + 1; n++)
+                            {
+                                if (xRes + n < 0 || xRes + n >= alphaMapWidth) //Prevent index out of bound
+                                {
+                                    continue;
+                                }
+
+                                if (heights[zRes + m, xRes + n] > assetSetting.maxElevation || heights[zRes + m, xRes + n] < assetSetting.minElevation)
+                                {
+                                    createAsset = false;
+                                }
+                            }
                         }
                     }
                     if (createAsset && assetSetting.angleRange)
@@ -95,9 +111,14 @@ public class CreateAssets : MonoBehaviour
 
                     for (int m = -1; m < 2; m++) // Find out which coordinates amongst the area has the lowest or the highest elev
                     {
+                        if(zRes + m < 0 || zRes + m >= alphaMapHeight) //Prevent index out of bound
+                        {
+                            continue;
+                        }
+
                         for (int n = -1; n < 2; n++)
                         {
-                            if (zRes + m < 0 || zRes + m >= alphaMapHeight || xRes + n < 0 || xRes + n >= alphaMapWidth) //Prevent index out of bound
+                            if (xRes + n < 0 || xRes + n >= alphaMapWidth) //Prevent index out of bound
                             {
                                 continue;
                             }
@@ -121,7 +142,7 @@ public class CreateAssets : MonoBehaviour
                         switch (assetSetting.slopeType)
                         {
                             case SlopeType.flat:
-                                for (int x = -assetSetting.checkingRange; x <= assetSetting.checkingRange; x++)
+                                for (int x = -assetSetting.slopeCheckRange; x <= assetSetting.slopeCheckRange; x++)
                                 {
                                     if (!createAsset)
                                     {
@@ -135,7 +156,7 @@ public class CreateAssets : MonoBehaviour
                                         break;
                                     }
 
-                                    for (int y = -assetSetting.checkingRange; y <= assetSetting.checkingRange; y++)
+                                    for (int y = -assetSetting.slopeCheckRange; y <= assetSetting.slopeCheckRange; y++)
                                     {
                                         if ((xRes + y * highestDir.y) < 0 ||
                                             (xRes + y * highestDir.y) >= alphaMapWidth) //Prevent index out of bound
@@ -154,7 +175,7 @@ public class CreateAssets : MonoBehaviour
                                 break;
 
                             case SlopeType.upHill:
-                                for (int r = 1; r <= assetSetting.checkingRange; r++)
+                                for (int r = 1; r <= assetSetting.slopeCheckRange; r++)
                                 {
                                     if ((zRes + r * highestDir.x) < 0 ||
                                         (zRes + r * highestDir.x) >= alphaMapHeight ||
@@ -175,7 +196,7 @@ public class CreateAssets : MonoBehaviour
                                 break;
 
                             case SlopeType.downHill:
-                                for (int r = 1; r <= assetSetting.checkingRange; r++)
+                                for (int r = 1; r <= assetSetting.slopeCheckRange; r++)
                                 {
                                     if ((zRes + r * lowestDir.x) < 0 ||
                                         (zRes + r * lowestDir.x) >= alphaMapHeight ||
@@ -243,12 +264,13 @@ public class AssetSetting
     public bool elevationRange; // If the texture has to fit within an elevation range
     public float minElevation;
     public float maxElevation;
+    public int elevationCheckRange; // How far the nearby elevation has to be within the same range
 
     public bool angleRange; // If the texture has to fit on a certain angle range (steeper land means mountain top/river bedrock)
     public float minAngle;
     public float maxAngle;
 
-    public int checkingRange; // How large is the "surrounding area"
+    public int slopeCheckRange; // How large is the "surrounding area"
     public bool specSlope; // Do we place it on a specific slope type
     public SlopeType slopeType; // Do we place it when it is on up hill or down hill or flat ground
 

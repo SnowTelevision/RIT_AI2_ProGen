@@ -19,6 +19,12 @@ public class AssetBehavior : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z - terrain.animateSpeed * Time.deltaTime * terrain.Scale);
+        if(terrain.updateRealtime)
+        {
+            if(terrain.animate)
+            {
+                transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z - terrain.animateSpeed * Time.deltaTime * terrain.Scale * 1.3f);
+            }
+        }
     }
 }
