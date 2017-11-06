@@ -13,7 +13,11 @@ public class AssetBehavior : MonoBehaviour
     {
         terrain = FindObjectOfType<DomainWarpingFBMTest>();
         lastingTime = terrain.width * terrain.animateSpeed;
-        Destroy(gameObject, lastingTime);
+
+        if (terrain.animate)
+        {
+            Destroy(gameObject, lastingTime);
+        }
     }
 
     // Update is called once per frame
