@@ -12,7 +12,8 @@ public class DomainWarpingFBM : MonoBehaviour
     public Vector2 randomVector2D;
     public float randomSinMulti; // This number will be multiplied by the sine value
 
-    public static float warpedValue;
+    public  float warpedValue;
+    public FBM2D fbm2d;
 
     // Use this for initialization
     void Start()
@@ -22,7 +23,7 @@ public class DomainWarpingFBM : MonoBehaviour
         //    randomVector2D = new Vector2(BetterRandom.betterRandom(-10000000, 10000000) / 100000f, BetterRandom.betterRandom(-10000000, 10000000) / 100000f);
         //} while (randomVector2D.x == 0 || randomVector2D.y == 0 || randomVector2D.x == randomVector2D.y);
 
-
+        fbm2d = GetComponent<FBM2D>();
     }
 
     // Update is called once per frame
@@ -31,9 +32,9 @@ public class DomainWarpingFBM : MonoBehaviour
 
     }
 
-    public static float improvedFBMwarping(int warps, float factor, Vector2 coord, int octaves, float gain, float lacunarity, Vector2 randomVector2D, float randomSinMulti, Vector2[] randomWarpStartCoords)
+    public  float improvedFBMwarping(int warps, float factor, Vector2 coord, int octaves, float gain, float lacunarity, Vector2 randomVector2D, float randomSinMulti, Vector2[] randomWarpStartCoords)
     {
-        warpedValue = FBM2D.improvedFBM(coord, octaves, gain, lacunarity, randomVector2D, randomSinMulti);
+        warpedValue = fbm2d.improvedFBM(coord, octaves, gain, lacunarity, randomVector2D, randomSinMulti);
         Vector2 originalCoord = coord; // The unwarpped coordinate
         Vector2 lastCoord = coord; // The coordinate of last warping
         //Vector2 accumulateCoord = coord;
@@ -52,10 +53,10 @@ public class DomainWarpingFBM : MonoBehaviour
         {
             //randomWarpStartCoord = new Vector2(BetterRandom.betterRandom(0, 1000) / 100f, BetterRandom.betterRandom(0, 1000) / 100f);
 
-            coord.x = FBM2D.improvedFBM(lastCoord + randomWarpStartCoords[i], octaves, gain, lacunarity, randomVector2D, randomSinMulti);
-            coord.y = FBM2D.improvedFBM(lastCoord + randomWarpStartCoords[i + warps], octaves, gain, lacunarity, randomVector2D, randomSinMulti);
+            coord.x = fbm2d.improvedFBM(lastCoord + randomWarpStartCoords[i], octaves, gain, lacunarity, randomVector2D, randomSinMulti);
+            coord.y = fbm2d.improvedFBM(lastCoord + randomWarpStartCoords[i + warps], octaves, gain, lacunarity, randomVector2D, randomSinMulti);
 
-            warpedValue = FBM2D.improvedFBM(originalCoord + coord * factor, octaves, gain, lacunarity, randomVector2D, randomSinMulti);
+            warpedValue = fbm2d.improvedFBM(originalCoord + coord * factor, octaves, gain, lacunarity, randomVector2D, randomSinMulti);
         }
 
         return warpedValue;

@@ -33,6 +33,7 @@ public class DomainWarpingFBMTest : MonoBehaviour
 
     public float[,] map; // Storing the heightmap data (for the noise combination)
     //public Vector2 coord;
+    public DomainWarpingFBM domainWarpingFBM;
 
     public void Start()
     {
@@ -68,6 +69,8 @@ public class DomainWarpingFBMTest : MonoBehaviour
             terrain.terrainData = GenerateTerrain(terrain.terrainData);
             map = GenerateHeights(); // Storing the heightmap data (for the noise combination)
         }
+
+        domainWarpingFBM = GetComponent<DomainWarpingFBM>();
     }
 
 
@@ -106,6 +109,10 @@ public class DomainWarpingFBMTest : MonoBehaviour
             });
         });
 
+        //map[0, width - 1] = 1;
+        //map[1, width - 1] = 1;
+        //map[0, width - 2] = 1;
+        //map[0, width - 2] = 1;
         //for (int x = 0; x < width; x++)
         //{
         //    for (int y = 0; y < height; y++)
@@ -136,6 +143,6 @@ public class DomainWarpingFBMTest : MonoBehaviour
         coord.x = xCord;
         coord.y = yCord;
 
-        return DomainWarpingFBM.improvedFBMwarping(warpings, factor, coord, octaves, gain, lacunarity, randomVector2D, randomSinMulti, randomWarpStartCoords);
+        return domainWarpingFBM.improvedFBMwarping(warpings, factor, coord, octaves, gain, lacunarity, randomVector2D, randomSinMulti, randomWarpStartCoords);
     }
 }

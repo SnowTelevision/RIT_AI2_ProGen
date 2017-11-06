@@ -39,10 +39,10 @@ public class TerrainSplat : MonoBehaviour
                 var splatWeights = new float[splatLengths];                                             //create a temp array to store all our 'none-normalised weights'
                 var normalizedX = (float)xRes / (alphaMapWidth - 1);                        //gets the normalised X position based on the map resolution                     
                 var normalizedZ = (float)zRes / (alphaMapHeight - 1);                       //gets the normalised Y position based on the map resolution 
-                var randomBlendNoise = ReMap(Mathf.PerlinNoise(xRes * .8f, zRes * .5f), 0, 1, .8f, 1);  //Get a random perlin value
+                //var randomBlendNoise = ReMap(Mathf.PerlinNoise(xRes * .8f, zRes * .5f), 0, 1, .8f, 1);  //Get a random perlin value
 
                 float angle = terrainData.GetSteepness(normalizedX, normalizedZ);                       //Get the ANGLE/STEEPNESS at this point: returns the angle between 0 and 90
-                Vector3 direction = terrainData.GetInterpolatedNormal(xRes, zRes);                      //Get the DIRECTION at this point: returns the direction of the normal as a Vector3
+                //Vector3 direction = terrainData.GetInterpolatedNormal(xRes, zRes);                      //Get the DIRECTION at this point: returns the direction of the normal as a Vector3
                 float elevation = heights[zRes, xRes];                                                  //Get the HEIGHT at this point: return between 0 and 1 (0=lowest trough, .5f=Water level. 1f=highest peak)
                 //float perlinElevation = heights[zRes, xRes] * randomBlendNoise;                         //Get a semi random height based on perlin noise, this is to give a more random blend, rather than straight horizontal lines.
 
@@ -53,21 +53,21 @@ public class TerrainSplat : MonoBehaviour
                     //var calculatedHeight = textureSetting.RandomBlend ? perlinElevation : elevation;    //create a new height variable, and make it the actual height, unless the user selected to add a bit of randomness                                      
                     bool applyTexture = true;                                                           // Default is true to apply this texture, if any of the selected condition fails, this will be change to false
 
-                    if(Textures[i].elevationRange)
+                    if (Textures[i].elevationRange)
                     {
-                        if(elevation > textureSetting.maxElevation || elevation < textureSetting.minElevation)
+                        if (elevation > textureSetting.maxElevation || elevation < textureSetting.minElevation)
                         {
                             applyTexture = false;
                         }
                     }
-                    if(Textures[i].angleRange)
+                    if (applyTexture && Textures[i].angleRange)
                     {
-                        if(angle > textureSetting.maxAngle || angle < textureSetting.minAngle)
+                        if (angle > textureSetting.maxAngle || angle < textureSetting.minAngle)
                         {
                             applyTexture = false;
                         }
                     }
-                    if (Textures[i].isConcave || Textures[i].isConvex)
+                    if (applyTexture && Textures[i].isConcave || Textures[i].isConvex)
                     {
                         float lowestElevation = elevation; // Lowest elevation in the surrounding 8 coordinates
                         float highestElevation = elevation; // Highest elevation in the surrounding 8 coordinates
@@ -121,6 +121,7 @@ public class TerrainSplat : MonoBehaviour
                                         heights[(zRes + Mathf.RoundToInt((r - 1) * lowestDir.x)), (xRes + (r - 1) * Mathf.RoundToInt(lowestDir.y))]) // If alone the downward slope, the slope goes back up
                                     {
                                         isConcave = true;
+                                        break;
                                     }
                                 }
                             }
@@ -154,6 +155,7 @@ public class TerrainSplat : MonoBehaviour
                                         heights[(zRes + Mathf.RoundToInt((r - 1) * highestDir.x)), (xRes + Mathf.RoundToInt((r - 1) * highestDir.y))]) // If alone the downward slope, the slope goes back up
                                     {
                                         isConvex = true;
+                                        break;
                                     }
                                 }
                             }
@@ -225,7 +227,7 @@ public class TerrainSplat : MonoBehaviour
                     //    }
                     //}
 
-                    if(applyTexture)
+                    if (applyTexture)
                     {
                         splatWeights[i] = textureSetting.Impact;
                     }

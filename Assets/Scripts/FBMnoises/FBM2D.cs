@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Threading;
+using System.Threading.Tasks;
 
 public class FBM2D : MonoBehaviour
 {
@@ -19,10 +21,18 @@ public class FBM2D : MonoBehaviour
 
     }
 
-    public static float improvedFBM(Vector2 coord, int octaves, float gain, float lacunarity, Vector2 randomVector2D, float randomSinMulti)
+    public  float improvedFBM(Vector2 coord, int octaves, float gain, float lacunarity, Vector2 randomVector2D, float randomSinMulti)
     {
         float value = 0;
         float amplitude = 0.5f;
+
+        //Parallel.For(1, octaves + 1, i =>
+        //{
+        //    //Interlocked.Add(ref value, amplitude * improvedFadePerlin(coord, randomVector2D.x, randomVector2D.y, randomSinMulti));
+        //    value += amplitude * improvedFadePerlin(coord, randomVector2D.x, randomVector2D.y, randomSinMulti);
+        //    coord *= lacunarity;
+        //    amplitude *= gain * (0.5f / gain);
+        //});
 
         for (int i = 1; i < octaves + 1; i++)
         {
@@ -34,7 +44,7 @@ public class FBM2D : MonoBehaviour
         return value * gain;
     }
 
-    public static float improvedFadePerlin(Vector2 coord, float v2x, float v2y, float randomSinMulti)
+    public  float improvedFadePerlin(Vector2 coord, float v2x, float v2y, float randomSinMulti)
     {
         Vector2 unitCoord = Floor2D(coord); // Integer part of the coordinate
         Vector2 fractCoord = Fract2D(coord); // Fractional part of the coordinate
@@ -58,7 +68,7 @@ public class FBM2D : MonoBehaviour
         return Mathf.Lerp(tl, tr, improvedFade.x) + (bl - tl) * improvedFade.y * (1 - improvedFade.x) + (br - tr) * improvedFade.x * improvedFade.y;
     }
 
-    public static float randomDot(Vector2 coord, float v2x, float v2y, float randomSinMulti) // Return the fractional part of the sine of the dot product of the 2D coordinate vector and a random 2D vector
+    public  float randomDot(Vector2 coord, float v2x, float v2y, float randomSinMulti) // Return the fractional part of the sine of the dot product of the 2D coordinate vector and a random 2D vector
     {
         Vector2 randV2;
         randV2.x = v2x;
@@ -72,17 +82,17 @@ public class FBM2D : MonoBehaviour
     //    return new Vector2(a2D.x * (1 - t) + b2D.x * t, a2D.y * (1 - t) + b2D.y * t);
     //}
 
-    public static Vector2 Fract2D(Vector2 f2D) // Return the fractional part of a 2D vector
+    public  Vector2 Fract2D(Vector2 f2D) // Return the fractional part of a 2D vector
     {
         return (f2D - Floor2D(f2D));
     }
 
-    public static Vector2 Floor2D(Vector2 f2D)
+    public  Vector2 Floor2D(Vector2 f2D)
     {
         return new Vector2(Mathf.Floor(f2D.x), Mathf.Floor(f2D.y)); // Floor a 2D vector
     }
 
-    public static float Fract(float f) // Return the fractional part of a float
+    public  float Fract(float f) // Return the fractional part of a float
     {
         return (f - Mathf.Floor(f));
     }
