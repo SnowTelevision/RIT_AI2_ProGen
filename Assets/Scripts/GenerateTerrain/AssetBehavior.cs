@@ -32,7 +32,7 @@ public class AssetBehavior : MonoBehaviour
         {
             if(terrain.animate)
             {
-                transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z - terrain.animateSpeed * Time.deltaTime * terrain.Scale * 1.3f);
+                transform.position = new Vector3(transform.position.x, transform.position.y, transform.position.z - terrain.animateSpeed * Time.deltaTime * terrain.Scale * 2f);
             }
         }
     }
