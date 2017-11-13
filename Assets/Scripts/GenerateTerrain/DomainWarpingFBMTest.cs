@@ -12,10 +12,14 @@ public class DomainWarpingFBMTest : MonoBehaviour
     public int height;    // make int named height and set it to a default of 256 [Length of terrain]
     public float Scale;
     public int octaves; // How many octaves to be combined
-    public float gain; // Percentage of height with a scale from 0-1 (if the value is larger than 1 then the area larger than 1 will be cut to flat
-    public float lacunarity; // similar to scale
+    public float sinGain; // Percentage of height with a scale from 0-1 (if the value is larger than 1 then the area larger than 1 will be cut to flat
+    public float sinLacunarity; // How fractal it is for the next cycle
+    public int perlins; // How many Perlin noises to be combined
+    public float perlinGain; // Percentage of height with a scale from 0-1 (if the value is larger than 1 then the area larger than 1 will be cut to flat
+    public float perlinLacunarity; // How fractal it is for the next cycle
     public int warpings; // How many times do we apply domain warping
     public float factor; // This is used to multiply the last fbm vector2 result when input to the new fbm
+    public float perlinWeight; // How much is Perlin Noise affect the final output
 
     public bool randomStartCoord;      // Do you want a random part of the terrain?
     public bool updateRealtime; // Will the terrain update in the runtime as the values in the inspector changes
@@ -27,25 +31,43 @@ public class DomainWarpingFBMTest : MonoBehaviour
     public float offsetX;
     public float offsetY;
 
-    public Vector2 randomVector2D;
+    public Vector2[,] randomGradientVector2D;
+    public Vector2 randomVector;
     public float randomSinMulti; // This number will be multiplied by the sine value
     public Vector2[] randomWarpStartCoords; // Random start coorinations for each warping
 
     public float[,] map; // Storing the heightmap data (for the noise combination)
     //public Vector2 coord;
     public DomainWarpingFBM domainWarpingFBM;
+    public PerlinNoise improvedPerlin;
 
     public void Start()
     {
         offsetX = Random.Range(0, 99999);
         offsetY = Random.Range(0, 99999);
 
+        Random.InitState(System.DateTime.Now.Millisecond);
+        randomGradientVector2D = new Vector2[width, height];
+        for (int i = 0; i < width; i++)
+        {
+            for (int j = 0; j < height; j++)
+            {
+
+                //randomGradientVector2D[i, j] = new Vector2(Random.Range(-0.5f, 0.5f), Random.Range(-0.5f, 0.5f));
+                //print(randomGradientVector2D[i, j]);
+                do
+                {
+                    randomGradientVector2D[i, j] = new Vector2(BetterRandom.betterRandom(-50000, 50000) / 100000f, BetterRandom.betterRandom(-50000, 50000) / 100000f);
+                } while (randomGradientVector2D[i, j].x == 0 || randomGradientVector2D[i, j].y == 0 || randomGradientVector2D[i, j].x == randomGradientVector2D[i, j].y);
+            }
+        }
+
         do
         {
-            randomVector2D = new Vector2(BetterRandom.betterRandom(-10000000, 10000000) / 100000f, BetterRandom.betterRandom(-10000000, 10000000) / 100000f);
-        } while (randomVector2D.x == 0 || randomVector2D.y == 0 || randomVector2D.x == randomVector2D.y);
-
+            randomVector = new Vector2(BetterRandom.betterRandom(-10000000, 10000000) / 100000f, BetterRandom.betterRandom(-10000000, 10000000) / 100000f);
+        } while (randomVector.x == 0 || randomVector.y == 0 || randomVector.x == randomVector.y);
         randomSinMulti = BetterRandom.betterRandom(10000, 100000) + (BetterRandom.betterRandom(1000000, 10000000) / 10000000f);
+        //randomSinMulti = 1;
 
         randomWarpStartCoords = new Vector2[20];
         for (int i = 0; i < 10; i++) // Generate random start coorinations for each warping
@@ -86,6 +108,7 @@ public class DomainWarpingFBMTest : MonoBehaviour
                 if (animate == true)
                 {
                     offsetX += Time.deltaTime * animateSpeed;
+                    //randomVector.x += Time.deltaTime * animateSpeed;
                 }
             }
         }
@@ -143,6 +166,9 @@ public class DomainWarpingFBMTest : MonoBehaviour
         coord.x = xCord;
         coord.y = yCord;
 
-        return domainWarpingFBM.improvedFBMwarping(warpings, factor, coord, octaves, gain, lacunarity, randomVector2D, randomSinMulti, randomWarpStartCoords);
+        return domainWarpingFBM.improvedFBMwarping(warpings, factor, coord, octaves, sinGain, sinLacunarity, randomVector, randomSinMulti, randomWarpStartCoords) * (1 - perlinWeight) +
+               //improvedPerlin.improvedPerlinFBMwarping(warpings, factor, coord, randomGradientVector2D, randomWarpStartCoords, perlins, perlinGain, perlinLacunarity) * perlinWeight;
+               //improvedPerlin.improvedPerlinFBM(coord, randomGradientVector2D, perlins, perlinGain, perlinLacunarity) * perlinWeight;
+               improvedPerlin.improvedFadePerlin(coord, randomGradientVector2D) * perlinWeight;
     }
 }

@@ -104,6 +104,6 @@ public class FBMTest : MonoBehaviour
 
         Vector2 coord = new Vector2(xCord, yCord);
 
-        return FindObjectOfType<FBM2D>().improvedFBM(coord, octaves, gain, lacunarity, randomVector2D, randomSinMulti);
+        return FindObjectOfType<FBM2D>().improvedFBM(coord, octaves, gain, lacunarity, new Vector2(), randomSinMulti);
     }
 }
